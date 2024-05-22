@@ -9,8 +9,8 @@ let step = false;
 **/
 
 function setup() {
-  frameRate(5);
-  createCanvas(windowWidth, windowHeight)
+  frameRate(10);
+  createCanvas(500, 500)
   
   let step_button = createButton('Start Automata');
   step_button.position(50, 50);
@@ -48,6 +48,7 @@ function setup() {
 
 function draw() {
   clear();
+
   //draw contents of cells, black if 0, white else
   for(let x = 0; x < cells.length; x++){
     for(let y = 0; y < cells[x].length; y++){
@@ -61,6 +62,30 @@ function draw() {
       }
       rect(x*cellX, y*cellY, cellX, cellY)
     } 
+  }
+  
+  
+  //add screen noise
+  // Set the noise level and scale.
+  let noiseLevel = 255;
+  let noiseScale = 0.009;
+
+  // Iterate from top to bottom.
+  for (let y = 0; y < height; y += 1) {
+    // Iterate from left to right.
+    for (let x = 0; x < width; x += 1) {
+      // Scale the input coordinates.
+      let nx = noiseScale * x;
+      let ny = noiseScale * y;
+      let nt = noiseScale * frameCount;
+
+      // Compute the noise value.
+      let c = noiseLevel * noise(nx, ny, nt);
+
+      // Draw the point.
+      stroke(c);
+      point(x, y);
+    }
   }
   
   //update cells
@@ -79,7 +104,6 @@ function mousePressed(){
   y = Math.floor(mouseY / cellY)
   
   cells[x][y] = !(cells[x][y])
-  getNumNeighbors(x,y);
 }
   
 function updateCell(x,y){
