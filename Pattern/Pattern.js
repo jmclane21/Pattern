@@ -1,7 +1,7 @@
 let cells = []
 let cellX = 50
 let cellY = 50
-let step = true;
+let step = false;
 
 /**TODO
   insert button for step toggle
@@ -9,7 +9,30 @@ let step = true;
 **/
 
 function setup() {
+  frameRate(5);
   createCanvas(windowWidth, windowHeight)
+  
+  let step_button = createButton('Start Automata');
+  step_button.position(50, 50);
+  step_button.mousePressed(() => {
+    step = !step;
+    if(step){
+      step_button.html("Stop Automata")
+    }
+    else{
+      step_button.html("Start Automata")
+    }
+  });
+  
+  let reset_button = createButton('Reset Automata')
+  reset_button.position(150,50);
+  reset_button.mousePressed(() => {
+     for(let x = 0; x < cells.length; x++){
+       for(let y = 0; y < cells[x].length; y++){
+          cells[x][y] = false;
+       }
+     }
+  });
   
   //produces width/cellX many cols
   for(let x = 0; x < width/cellX; x ++){
@@ -17,13 +40,7 @@ function setup() {
     
     //produces height/cellY many rows
     for(let y = 0; y < height/cellY; y++){
-      //produces checkerboard pattern
-      if((x % 2 == 0 && y % 2 != 0) || (x % 2 != 0 && y % 2 == 0)){
-        cells[x][y] = true;
-      }
-      else{
-        cells[x][y] = false;
-      }
+      cells[x][y] = false;
     }
   }
 }
@@ -35,6 +52,7 @@ function draw() {
   for(let x = 0; x < cells.length; x++){
     for(let y = 0; y < cells[x].length; y++){
       //true cells are black, false are white
+      
       if(cells[x][y]){
         fill(0,0,0);
       }
@@ -45,8 +63,13 @@ function draw() {
     } 
   }
   
-  if(!step){
-    updateCells();
+  //update cells
+  for(let x = 0; x < cells.length; x++){
+    for(let y = 0; y < cells[x].length; y++){
+      if(step){
+        updateCell(x,y);
+      }
+    }
   }
 }
 
@@ -59,20 +82,22 @@ function mousePressed(){
   getNumNeighbors(x,y);
 }
   
-function updateCells(){
+function updateCell(x,y){
   //check neighbors and go from there
   //helper func to get num neighbors
-  
-  for(let x = 0; x < cells.length; x++){
-    for(let y = 0; y < cells.length; y++){
-      neighbors = getNumNeighbors(x,y)
-      if(neighbors >= 2){
-        cells[x][y] = true;
-      }
-      if(neighbors > 6){
-        cells[x][y] = false;
-      }
-    }
+  //conway's rules
+  neighbors = getNumNeighbors(x,y)
+  if(neighbors < 2){
+    cells[x][y] = false;
+  }
+  else if(neighbors >= 2 && neighbors <= 3){
+    cells[x][y] = true;
+  }
+  else if(neighbors > 3){
+    cells[x][y] = false;
+  }
+  if(cells[x][y] == false && neighbors == 3){
+    cells[x][y] = true;
   }
   
 }
@@ -84,12 +109,19 @@ function getNumNeighbors(i, j){
 
   for(var x = Math.max(0, i-1); x <= Math.min(i+1, rowLimit); x++) {
     for(var y = Math.max(0, j-1); y <= Math.min(j+1, columnLimit); y++) {
-      if(x !== i || y !== j ) {
-        if(cells[x][y]){
+      if(x != i || y != j ) {
+        if(cells[x][y] == true){
           count++
         }
       }
     }
   }
   return count;
+}
+
+function keyPressed(){
+  if(key === 'c'){
+    step = !step;
+  }
+  return false;
 }
